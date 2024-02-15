@@ -1,0 +1,92 @@
+ public async Task captureUser()
+  {
+      List<UserModel> users = new List<UserModel>();
+      Console.WriteLine("Enter user info:");
+      while (true)
+      {
+          Console.WriteLine("Name:");
+          string name = Console.ReadLine();
+          Console.WriteLine("Surname:");
+          string surname = Console.ReadLine();
+          Console.WriteLine("Email:");
+          string email = Console.ReadLine();
+          Console.WriteLine("Password:");
+          string password = Console.ReadLine();
+
+          UserModel user = new UserModel
+          {
+              Name = name,
+              Surname = surname,
+              Email = email,
+              Password = password
+          };
+
+          choreDataAccess.CreateUser(user);
+
+          Console.WriteLine("Do you want to add another employee? (y/n)");
+          string answer = Console.ReadLine();
+
+          if (answer == "n")
+          {
+              break;
+          }
+      }
+
+  }
+
+  public async Task displayPerson()
+  {
+      captureUser();
+
+      var results = await choreDataAccess.GetAllUser();
+
+      foreach (var result in results.ToList())
+      {
+
+          Console.WriteLine(result.Name);
+          Console.WriteLine(result.Surname);
+          Console.WriteLine(result.Email);
+          Console.WriteLine(result.Password);
+      }
+  }
+
+  public async Task captureChores()
+  {
+      var user = await choreDataAccess.GetAllUser();
+
+
+      Console.WriteLine("Enter chore info:");
+
+      Console.WriteLine("Enter Who The chore is assigned to:");
+      string assignedTo = Console.ReadLine();
+
+      Console.WriteLine("Enter chore name:");
+      string choreName = Console.ReadLine();
+
+      Console.WriteLine("Frequency:");
+      int frequency = Convert.ToInt32(Console.ReadLine());
+
+      Console.WriteLine("Date the chore was finsihed:");
+      DateTime lastCompleted = Convert.ToDateTime(Console.ReadLine());            
+
+      ChoreModel chores = new ChoreModel()
+      {
+          AssignedTo = user.FirstOrDefault(x => x.Name == assignedTo),
+          ChoreText = choreName,
+          FreqencyOfChores = frequency,
+          LastCompleted = lastCompleted
+      };
+
+      choreDataAccess.CreateChore(chores);
+
+      var choreResults = await choreDataAccess.GetAllChores();
+
+
+      foreach(var item in choreResults)
+      {
+          Console.WriteLine($"\nAssigned To: {item.AssignedTo}");
+          Console.WriteLine($"Chore type: {item.ChoreText}");
+          Console.WriteLine($"Freqency of chore: {item.FreqencyOfChores}");
+          Console.WriteLine($"Last completed: {item.LastCompleted}");
+      }
+  }
