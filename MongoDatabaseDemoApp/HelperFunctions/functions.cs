@@ -37,7 +37,7 @@ namespace MongoDatabaseDemoApp.HelperFunctions
                 switch (userInput)
                 {
                     case "1":
-                        LoginComponent();
+                        await LoginComponent();
                         busy = false;
                         break;
                     case "2":
@@ -53,69 +53,6 @@ namespace MongoDatabaseDemoApp.HelperFunctions
                 }
             }
 
-        }
-
-        //This function will be a component for the login feature of the console app
-        public async Task LoginComponent()
-        {
-            while (true)
-            {
-                Console.WriteLine("\nEnter your username: ");
-                string username = validation.GetValidatedInput();
-                Console.WriteLine("\nEnter your password: ");
-                string password = validation.GetValidatedInput();
-
-                bool isValid = choreDataAccess.ValidatePassword(username, password).Result;
-
-                if (isValid)
-                {
-                    Console.WriteLine("\nLogin successful! Welcome back, " + username + "!");
-                    _cache[username] = await choreDataAccess.GetUserByEmail(username);
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid username or password. Please try again.");
-                }
-            }
-        }
-
-
-
-        //This function will be a component for the register feature of the console app
-        public void RegisterComponet()
-        {
-            Console.WriteLine("Welcome To The Register Page\n");
-
-            string name = validation.GetValidatedInput();
-            string surname = validation.GetValidatedInput();
-            string email = validation.GetValidatedEmail();
-            string password = validation.GetValidatedPassword();
-
-            UserModel user = new UserModel
-            {
-                Name = name,
-                Surname = surname,
-                Email = email,
-                Password = password
-            };
-
-            if (!choreDataAccess.UserExists(email))
-            {
-                try
-                {
-                    choreDataAccess.CreateUser(user);
-                    Console.WriteLine("\nUser Registered Successfully");
-                }
-                catch (MongoWriteException)
-                {
-                    Console.WriteLine("User registration failed. Please try again later.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("User with this email already exists.");
-            }
         }
 
         //This function will be a component for the CRUD operations of the console app
@@ -144,6 +81,8 @@ namespace MongoDatabaseDemoApp.HelperFunctions
                     case "2":
                         // Call your read method here
                         Console.WriteLine("\nPerform Read Operation");
+                        await ReadChores();
+
                         break;
                     case "3":
                         // Call your update method here
@@ -167,6 +106,67 @@ namespace MongoDatabaseDemoApp.HelperFunctions
             }
         }
 
+        //This function will be a component for the login feature of the console app
+        public async Task LoginComponent()
+        {
+            while (true)
+            {
+                
+                string username = validation.GetValidatedLoginUsername();
+                string password = validation.GetValidatedLoginPassword();
+
+                bool isValid = choreDataAccess.ValidatePassword(username, password).Result;
+
+                if (isValid)
+                {
+                    Console.WriteLine("\nLogin successful! Welcome back, " + username + "!");
+                    _cache[username] = await choreDataAccess.GetUserByEmail(username);
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid username or password. Please try again.");
+                }
+            }
+        }
+
+        //This function will be a component for the register feature of the console app
+        public void RegisterComponet()
+        {
+            Console.WriteLine("Welcome To The Register Page\n");
+
+            string name = validation.GetValidatedName();
+            string surname = validation.GetValidatedSurname();
+            string email = validation.GetValidatedEmail();
+            string password = validation.GetValidatedPassword();
+
+            UserModel user = new UserModel
+            {
+                Name = name,
+                Surname = surname,
+                Email = email,
+                Password = password
+            };
+
+            if (!choreDataAccess.UserExists(email))
+            {
+                try
+                {
+                    choreDataAccess.CreateUser(user);
+                    Console.WriteLine("\nUser Registered Successfully");
+                }
+                catch (MongoWriteException)
+                {
+                    Console.WriteLine("User registration failed. Please try again later.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("User with this email already exists.");
+            }
+        }
+       
+
         //This Method will capture the chores
         public async Task captureChores()
         {
@@ -174,18 +174,12 @@ namespace MongoDatabaseDemoApp.HelperFunctions
 
             Console.WriteLine("\nPerform Create Operation");
 
-            Console.WriteLine("Enter Chore Name: ");
-            string choreName = validation.GetValidatedInput();
-
-            Console.WriteLine("Enter Chore Frequency in days: ");
+            
+            string choreName = validation.GetValidatedChoreName();           
             int choreFrequency = validation.GetValidatedNumber();
 
-            await displayPerson();
-
-            Console.WriteLine($"{choreName} is Assigned To:");
-            string choreAssignedTo = validation.GetValidatedInput();
-
-            Console.WriteLine("Enter Chore Last Completed: ");
+            await displayPerson();           
+            string choreAssignedTo = validation.GetValidatedAssignedUser(choreName);
             DateTime choreLastCompleted = validation.GetValidatedDate();
 
             ChoreModel chores = new ChoreModel()
@@ -207,10 +201,23 @@ namespace MongoDatabaseDemoApp.HelperFunctions
             foreach (var result in results.ToList())
             {                
                 Console.WriteLine($"\nUse this field to Assign Chore to user: {result.Email}\nMore Details: {result.fullName}\n");                
+          
+            
             }
         }
 
-        
+        //This is for all Read Functionality
+        public async Task ReadChores()
+        {
+            var userDetails = _cache.Keys.First();
+
+            var results = await choreDataAccess.GetAllChores(userDetails);
+
+            foreach(var result in results.ToList())
+            {
+               // Console.WriteLine($"Assign to: {result.AssignedTo.fullName}");
+            }
+        }           
     }
 }
 

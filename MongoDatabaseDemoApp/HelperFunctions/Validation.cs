@@ -85,9 +85,34 @@ namespace MongoDatabaseDemoApp.HelperFunctions
             return true;
         }
 
-        //Validations for the user input
-        public string GetValidatedInput()
+        //Validations Results for the user input
+        public string GetValidatedName()
         {
+            Console.WriteLine("\nEnter Your Name: ");
+            string input = Console.ReadLine();
+            // Validate input as needed
+            return ValidateName(input);
+        }
+
+        public string GetValidatedSurname()
+        {
+            Console.WriteLine("\nEnter Your Surname: ");
+            string input = Console.ReadLine();
+            // Validate input as needed
+            return ValidateName(input);
+        }
+
+        public string GetValidatedLoginUsername()
+        {
+            Console.WriteLine("\nEnter Your Email: ");
+            string input = Console.ReadLine();
+            // Validate input as needed
+            return ValidateName(input);
+        }
+
+        public string GetValidatedLoginPassword()
+        {
+            Console.WriteLine("\nEnter Your Password: ");
             string input = Console.ReadLine();
             // Validate input as needed
             return ValidateName(input);
@@ -95,6 +120,7 @@ namespace MongoDatabaseDemoApp.HelperFunctions
 
         public int GetValidatedNumber()
         {
+            Console.WriteLine("\nEnter Chore Frequency in days: ");
             string number = Console.ReadLine();
             // Validate number as needed
             return ValidateNumber(number);
@@ -124,6 +150,8 @@ namespace MongoDatabaseDemoApp.HelperFunctions
 
         public DateTime GetValidatedDate()
         {
+            Console.WriteLine("\nEnter Chore Last Completed in format(MM/DD/YYYY): ");
+
             string date = Console.ReadLine();
             while (!ValidateDate(date))
             {
@@ -131,6 +159,22 @@ namespace MongoDatabaseDemoApp.HelperFunctions
                 date = Console.ReadLine();
             }
             return Convert.ToDateTime(date);
+        }
+
+        public string GetValidatedChoreName()
+        {
+            Console.WriteLine("Enter The Chore Name/Task: ");
+            string input = Console.ReadLine();
+            // Validate input as needed
+            return ValidateName(input);
+        }
+
+        public string GetValidatedAssignedUser(string chore)
+        {
+            Console.WriteLine($"{chore} is Assigned to:");
+            string input = Console.ReadLine();
+            // Validate input as needed
+            return ValidateName(input);
         }
     }
 }
