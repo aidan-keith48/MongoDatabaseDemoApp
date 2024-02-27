@@ -115,7 +115,7 @@ namespace MongoDatabaseDemoApp.HelperFunctions
                 string username = validation.GetValidatedLoginUsername();
                 string password = validation.GetValidatedLoginPassword();
 
-                bool isValid = choreDataAccess.ValidatePassword(username, password).Result;
+                bool isValid = choreDataAccess.ValidateUser(username, password).Result;
 
                 if (isValid)
                 {

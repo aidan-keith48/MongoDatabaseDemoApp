@@ -128,6 +128,7 @@ namespace MongoDatabaseDemoApp.HelperFunctions
 
         public string GetValidatedEmail()
         {
+            Console.WriteLine("\nEnter Your Email: ");
             string email = Console.ReadLine();
             while (!ValidateEmail(email))
             {
@@ -139,6 +140,7 @@ namespace MongoDatabaseDemoApp.HelperFunctions
 
         public string GetValidatedPassword()
         {
+            Console.WriteLine("\nEnter Your Password: ");
             string password = Console.ReadLine();
             while (!ValidatePassword(password))
             {

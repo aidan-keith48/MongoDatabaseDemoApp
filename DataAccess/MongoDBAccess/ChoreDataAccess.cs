@@ -1,4 +1,5 @@
 ﻿using Amazon.Runtime.Internal.Settings;
+using DataAccess.Auth;
 using DataAccess.Model;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -8,6 +9,8 @@ namespace DataAccess.MongoDBAccess
 {
     public class ChoreDataAccess
     {
+        PasswordHashing hashing = new PasswordHashing();
+
         private const string connectionString = "mongodb://localhost:27017";
         private const string databaseName = "ChoreTracker";
         private const string choreCollection = "Chores_chart";
@@ -67,13 +70,13 @@ namespace DataAccess.MongoDBAccess
         }
 
         // Method to asynchronously validate a user's password
-        public async Task<bool> ValidatePassword(string email, string password)
+        public async Task<bool> ValidateUser(string email, string password)
         {
             // Retrieve the user from the database based on the email
             UserModel user = await GetUserByEmail(email);
 
             // Check if the user exists and if the provided password matches the stored password
-            return user != null && user.Password == password;
+            return hashing.VerifyPassword(password, user.Password);
         }
 
         // Method to asynchronously retrieve all chore documents assigned to a specific user
@@ -94,6 +97,9 @@ namespace DataAccess.MongoDBAccess
         {
             // Connect to the users collection in the MongoDB database
             var usersCollection = ConnectToMongo<UserModel>(ChoreDataAccess.usersCollection);
+
+            //Hash the user's password before storing it in the database
+            user.Password = hashing.HashPassword(user.Password);
 
             // Insert the user document into the collection
             return usersCollection.InsertOneAsync(user);
@@ -141,11 +147,11 @@ namespace DataAccess.MongoDBAccess
             // Define a filter to find a user document by email
             var filter = Builders<UserModel>.Filter.Eq("Email", email);
 
-            // Find the user document(s) that match the filter
-            var result = userCollection.Find(filter);
+            // Check if any user documents match the filter
+            var exists = userCollection.Find(filter).Any();
 
-            // Check if any user documents were found
-            return result != null;
+            // Return true if a user document exists, false otherwise
+            return exists;
         }
 
     }
